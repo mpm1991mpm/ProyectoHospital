@@ -44,3 +44,7 @@ Thumbs.db
 .claude/settings.local.json
 
 .angular
+
+# Maven
+apps/backend/target/
+**/target/
