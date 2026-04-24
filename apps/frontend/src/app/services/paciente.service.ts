@@ -8,7 +8,7 @@ import { Paciente } from '../models/paciente.model';
 })
 export class PacienteService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/pacientes';
+  private apiUrl = '/api/pacientes';
 
   pacientes = signal<Paciente[]>([]);
   loading = signal(false);

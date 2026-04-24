@@ -8,7 +8,7 @@ import { Habitacion } from '../models/habitacion.model';
 })
 export class HabitacionService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/habitaciones';
+  private apiUrl = '/api/habitaciones';
 
   habitaciones = signal<Habitacion[]>([]);
   loading = signal(false);
