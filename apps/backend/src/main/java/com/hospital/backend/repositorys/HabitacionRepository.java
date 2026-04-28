@@ -1,6 +1,6 @@
 package com.hospital.backend.repositorys;
 
-import com.hospital.backend.models.Habitacion;
+import com.hospital.backend.models.Habitacion.Habitacion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

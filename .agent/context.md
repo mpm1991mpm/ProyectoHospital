@@ -54,20 +54,8 @@ Actualmente el proyecto ya dispone de:
 #### Habitacion
 Representa una habitación del hospital o centro.
 
-Campos iniciales sugeridos:
-- id
-- numero
-- planta
-- observaciones
-
 #### Paciente
 Representa un paciente asignado a una habitación.
-
-Campos iniciales sugeridos:
-- id
-- nombre
-- observaciones
-- habitacion
 
 ## Relación entre entidades
 
@@ -234,8 +222,6 @@ Cuando propongas o generes código:
 - si creas frontend, prioriza una UI bonita y clara
 - si creas backend, prioriza un CRUD limpio y bien organizado
 - no cambies tecnologías salvo petición explícita
-- no añadas seguridad de momento
-- no añadas funcionalidades fuera del alcance actual
 
 ## Resultado esperado de esta fase
 

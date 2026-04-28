@@ -1,0 +1,52 @@
+<div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+    <div class="lg:col-span-2">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Buscar paciente por nombre</label>
+      <div class="relative">
+        <input
+          type="text"
+          [value]="searchTerm()"
+          (input)="onSearch($any($event.target).value)"
+          placeholder="Escribe el nombre del paciente..."
+          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+        />
+        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Unidad</label>
+      <select
+        [value]="unidadFilter()"
+        (change)="onUnidadFilterChange($any($event.target).value)"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+      >
+        <option value="TODAS">Todas</option>
+        @for (unidad of unidadOptions; track unidad) {
+          <option [value]="unidad">{{ unidad }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Alta</label>
+        <div class="inline-flex rounded-lg border border-gray-200 bg-white p-1 w-full">
+          <button type="button" class="flex-1 text-xs px-2 py-1 rounded-md" [class.bg-green-600]="altaFilter() === 'TODOS'" [class.text-white]="altaFilter() === 'TODOS'" (click)="onAltaFilterChange('TODOS')">Todos</button>
+          <button type="button" class="flex-1 text-xs px-2 py-1 rounded-md" [class.bg-green-600]="altaFilter() === 'SI'" [class.text-white]="altaFilter() === 'SI'" (click)="onAltaFilterChange('SI')">Si</button>
+          <button type="button" class="flex-1 text-xs px-2 py-1 rounded-md" [class.bg-green-600]="altaFilter() === 'NO'" [class.text-white]="altaFilter() === 'NO'" (click)="onAltaFilterChange('NO')">No</button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Revisado</label>
+        <div class="inline-flex rounded-lg border border-gray-200 bg-white p-1 w-full">
+          <button type="button" class="flex-1 text-xs px-2 py-1 rounded-md" [class.bg-green-600]="revisadoFilter() === 'TODOS'" [class.text-white]="revisadoFilter() === 'TODOS'" (click)="onRevisadoFilterChange('TODOS')">Todos</button>
+          <button type="button" class="flex-1 text-xs px-2 py-1 rounded-md" [class.bg-green-600]="revisadoFilter() === 'SI'" [class.text-white]="revisadoFilter() === 'SI'" (click)="onRevisadoFilterChange('SI')">Si</button>
+          <button type="button" class="flex-1 text-xs px-2 py-1 rounded-md" [class.bg-green-600]="revisadoFilter() === 'NO'" [class.text-white]="revisadoFilter() === 'NO'" (click)="onRevisadoFilterChange('NO')">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

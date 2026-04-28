@@ -1,5 +1,6 @@
-package com.hospital.backend.models;
+package com.hospital.backend.models.Habitacion;
 
+import com.hospital.backend.models.Paciente.Paciente;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,12 +30,12 @@ public class Habitacion {
     private Long id;
 
     /**
-     * Número de la habitación.
-     * Campo obligatorio que identifica la habitación dentro del hospital.
+     * Nombre de la habitación.
+     * Campo obligatorio que identifica la habitación.
      */
     @NotNull
     @Column(nullable = false)
-    private String numero;
+    private String nombre;
 
     /**
      * Planta donde se encuentra la habitación.
@@ -43,6 +44,15 @@ public class Habitacion {
     @NotNull
     @Column(nullable = false)
     private String planta;
+
+    /**
+     * Capacidad de la habitación (INDIVIDUAL o DOBLE).
+     * Define cuántos pacientes pueden ocupar la habitación.
+     */
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Capacidad capacidad;
 
     /**
      * Observaciones adicionales sobre la habitación.

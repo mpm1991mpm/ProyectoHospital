@@ -1,15 +1,68 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { PacienteService } from '../../services/paciente.service';
 import { HabitacionService } from '../../services/habitacion.service';
 import { Paciente } from '../../models/paciente.model';
-import { Habitacion } from '../../models/habitacion.model';
+import { BuscadorPacientesComponent } from '../../components/buscador-pacientes/buscador-pacientes.component';
+import { BoolFilter, UnidadFilter } from '../../components/buscador-pacientes/buscador-pacientes.component';
+import { TablaPacientesComponent } from '../../components/tabla-pacientes/tabla-pacientes.component';
+import { FormularioPacienteComponent } from '../../components/formulario-paciente/formulario-paciente.component';
+type ViewMode = 'tabla' | 'habitaciones';
+
+function today(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getDefaultPaciente(): Paciente {
+  return {
+    nombre: '',
+    diagnostico: '',
+    unidad: 'TRA',
+    alta: false,
+    ambulancia: false,
+    preanestesia: null,
+    accesosVenosos: undefined,
+    drenajes: undefined,
+    rx: null,
+    sv: null,
+    observaciones: '',
+    fechaIQ: '',
+    fechaIngreso: today(),
+    analiticas: undefined,
+    curas: undefined,
+    pruebas: undefined,
+    alergias: '',
+    revisado: false,
+    cama: 1,
+    habitacionId: undefined,
+  };
+}
+
+function clonePaciente(paciente: Paciente): Paciente {
+  return {
+    ...getDefaultPaciente(),
+    ...paciente,
+    preanestesia: paciente.preanestesia ? { ...paciente.preanestesia } : null,
+    rx: paciente.rx ? { ...paciente.rx } : null,
+    sv: paciente.sv ? { ...paciente.sv } : null,
+    accesosVenosos: paciente.accesosVenosos?.map((item) => ({ ...item })),
+    drenajes: paciente.drenajes?.map((item) => ({ ...item })),
+    analiticas: paciente.analiticas?.map((item) => ({ ...item })),
+    curas: paciente.curas?.map((item) => ({ ...item })),
+    pruebas: paciente.pruebas?.map((item) => ({ ...item })),
+  };
+}
 
 @Component({
   selector: 'app-pacientes',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    BuscadorPacientesComponent,
+    TablaPacientesComponent,
+    FormularioPacienteComponent,
+  ],
   templateUrl: './pacientes.component.html',
   styleUrl: './pacientes.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,114 +78,182 @@ export class PacientesComponent implements OnInit {
   showModal = signal(false);
   isEditing = signal(false);
   searchTerm = signal('');
-  filterStatus = signal<'all' | 'assigned' | 'unassigned'>('all');
+  altaFilter = signal<BoolFilter>('TODOS');
+  revisadoFilter = signal<BoolFilter>('TODOS');
+  unidadFilter = signal<UnidadFilter>('TODAS');
+  viewMode = signal<ViewMode>('tabla');
+  expandedRoomSections = signal<Record<string, boolean>>({});
 
-  formData = signal<Paciente>({
-    nombre: '',
-    observaciones: '',
-    habitacionId: undefined
-  });
+  formData = signal<Paciente>(getDefaultPaciente());
 
   filteredPacientes = computed(() => {
-    let filtered = this.pacientes();
+    const search = this.searchTerm().toLowerCase().trim();
+    const altaFilter = this.altaFilter();
+    const revisadoFilter = this.revisadoFilter();
+    const unidadFilter = this.unidadFilter();
 
-    const search = this.searchTerm().toLowerCase();
-    if (search) {
-      filtered = filtered.filter(p =>
-        p.nombre.toLowerCase().includes(search) ||
-        p.observaciones?.toLowerCase().includes(search) ||
-        p.habitacion?.numero.toLowerCase().includes(search)
-      );
-    }
+    const filtered = this.pacientes().filter((paciente) => {
+      const byName = paciente.nombre.toLowerCase().includes(search);
+      if (!byName) return false;
 
-    const status = this.filterStatus();
-    if (status === 'assigned') {
-      filtered = filtered.filter(p => p.habitacionId);
-    } else if (status === 'unassigned') {
-      filtered = filtered.filter(p => !p.habitacionId);
-    }
+      if (unidadFilter !== 'TODAS' && paciente.unidad !== unidadFilter) {
+        return false;
+      }
 
-    return filtered;
+      if (altaFilter === 'SI' && paciente.alta !== true) return false;
+      if (altaFilter === 'NO' && paciente.alta !== false) return false;
+
+      if (revisadoFilter === 'SI' && paciente.revisado !== true) return false;
+      if (revisadoFilter === 'NO' && paciente.revisado !== false) return false;
+
+      return true;
+    });
+
+    return this.sortPacientes(filtered);
   });
 
-  stats = computed(() => ({
-    total: this.pacientes().length,
-    assigned: this.pacientes().filter(p => p.habitacionId).length,
-    unassigned: this.pacientes().filter(p => !p.habitacionId).length,
-    filtered: this.filteredPacientes().length
-  }));
+  pacientesPorHabitacion = computed(() => {
+    const groups = new Map<string, { title: string; pacientes: Paciente[] }>();
 
-  ngOnInit() {
+    for (const paciente of this.filteredPacientes()) {
+      const title = paciente.habitacion?.nombre || 'Sin habitacion';
+      if (!groups.has(title)) {
+        groups.set(title, { title, pacientes: [] });
+      }
+      groups.get(title)!.pacientes.push(paciente);
+    }
+
+    return Array.from(groups.values()).sort((a, b) => a.title.localeCompare(b.title, 'es'));
+  });
+
+  ngOnInit(): void {
     this.loadData();
   }
 
-  loadData() {
+  loadData(): void {
     this.pacienteService.getAll().subscribe();
     this.habitacionService.getAll().subscribe();
   }
 
-  openCreateModal() {
+  openCreateModal(): void {
     this.isEditing.set(false);
-    this.formData.set({ nombre: '', observaciones: '', habitacionId: undefined });
+    this.formData.set(getDefaultPaciente());
     this.showModal.set(true);
   }
 
-  openEditModal(paciente: Paciente) {
+  openEditModal(paciente: Paciente): void {
     this.isEditing.set(true);
-    this.formData.set({ ...paciente });
+    this.formData.set(clonePaciente(paciente));
     this.showModal.set(true);
   }
 
-  closeModal() {
+  closeModal(): void {
     this.showModal.set(false);
-    this.formData.set({ nombre: '', observaciones: '', habitacionId: undefined });
+    this.formData.set(getDefaultPaciente());
   }
 
-  savePaciente() {
-    const data = this.formData();
+  savePaciente(data: Paciente): void {
+    const payload = this.normalizePayload(data);
 
-    if (!data.nombre) {
-      alert('El nombre es obligatorio');
+    if (!payload.nombre) {
+      alert('El nombre del paciente es obligatorio');
+      return;
+    }
+    if (!payload.unidad) {
+      alert('La unidad es obligatoria');
+      return;
+    }
+    if (!payload.diagnostico) {
+      alert('El diagnostico es obligatorio');
+      return;
+    }
+    if (!payload.fechaIngreso) {
+      alert('La fecha de ingreso es obligatoria');
+      return;
+    }
+    if (!payload.cama || payload.cama < 1) {
+      alert('La cama es obligatoria y debe ser mayor que 0');
+      return;
+    }
+    if (!payload.habitacionId) {
+      alert('La habitacion es obligatoria');
       return;
     }
 
-    const payload: Paciente = {
-      nombre: data.nombre,
-      observaciones: data.observaciones || '',
-      habitacionId: data.habitacionId
-    };
-
-    if (this.isEditing() && data.id) {
-      this.pacienteService.update(data.id, payload).subscribe({
+    if (this.isEditing() && payload.id) {
+      this.pacienteService.update(payload.id, payload).subscribe({
         next: () => this.closeModal(),
-        error: (err) => alert('Error al actualizar: ' + err.message)
+        error: (err) => alert('Error al actualizar: ' + err.message),
       });
     } else {
       this.pacienteService.create(payload).subscribe({
         next: () => this.closeModal(),
-        error: (err) => alert('Error al crear: ' + err.message)
+        error: (err) => alert('Error al crear: ' + err.message),
       });
     }
   }
 
-  parseNumber(value: string): number | undefined {
-    return value ? Number(value) : undefined;
-  }
-
-  deletePaciente(id: number) {
-    if (confirm('¿Estás seguro de eliminar este paciente?')) {
+  deletePaciente(id: number): void {
+    if (confirm('Estas seguro de eliminar este paciente?')) {
       this.pacienteService.delete(id).subscribe({
-        error: (err) => alert('Error al eliminar: ' + err.message)
+        error: (err) => alert('Error al eliminar: ' + err.message),
       });
     }
   }
 
-  updateFormField(field: keyof Paciente, value: string | number | undefined) {
-    this.formData.update(data => ({ ...data, [field]: value }));
+  markPacienteRevisado(id: number): void {
+    const current = this.pacientes().find((p) => p.id === id);
+    if (!current || current.revisado) {
+      return;
+    }
+
+    const payload = this.normalizePayload({
+      ...clonePaciente(current),
+      revisado: true,
+    });
+
+    this.pacienteService.update(id, payload).subscribe({
+      error: (err) => alert('Error al marcar como revisado: ' + err.message),
+    });
   }
 
-  getHabitacionDisplay(paciente: Paciente): string {
-    if (!paciente.habitacion) return 'Sin asignar';
-    return `${paciente.habitacion.numero} - Planta ${paciente.habitacion.planta}`;
+  toggleRoomSection(title: string): void {
+    this.expandedRoomSections.update((current) => ({
+      ...current,
+      [title]: !current[title],
+    }));
+  }
+
+  isRoomSectionExpanded(title: string): boolean {
+    return this.expandedRoomSections()[title] ?? true;
+  }
+
+  private sortPacientes(pacientes: Paciente[]): Paciente[] {
+    return [...pacientes].sort((a, b) => {
+      const altaA = a.alta === true ? 1 : 0;
+      const altaB = b.alta === true ? 1 : 0;
+      if (altaA !== altaB) {
+        return altaB - altaA;
+      }
+
+      const habA = (a.habitacion?.nombre || '').toLowerCase();
+      const habB = (b.habitacion?.nombre || '').toLowerCase();
+      if (habA !== habB) {
+        return habA.localeCompare(habB, 'es');
+      }
+
+      return a.nombre.toLowerCase().localeCompare(b.nombre.toLowerCase(), 'es');
+    });
+  }
+
+  private normalizePayload(paciente: Paciente): Paciente {
+    const payload = clonePaciente(paciente);
+    payload.nombre = payload.nombre.trim();
+    payload.diagnostico = payload.diagnostico.trim();
+    payload.observaciones = payload.observaciones?.trim() || undefined;
+    payload.alergias = payload.alergias?.trim() || undefined;
+    payload.fechaIQ = payload.fechaIQ?.trim() || undefined;
+    payload.habitacion = undefined;
+    return payload;
   }
 }

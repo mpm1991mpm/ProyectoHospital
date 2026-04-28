@@ -1,13 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HabitacionService } from '../../services/habitacion.service';
 import { Habitacion } from '../../models/habitacion.model';
+import { BuscadorHabitacionesComponent } from '../../components/buscador-habitaciones/buscador-habitaciones.component';
+import { TablaHabitacionesComponent } from '../../components/tabla-habitaciones/tabla-habitaciones.component';
+import { FormularioHabitacionComponent } from '../../components/formulario-habitacion/formulario-habitacion.component';
 
 @Component({
   selector: 'app-habitaciones',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    BuscadorHabitacionesComponent,
+    TablaHabitacionesComponent,
+    FormularioHabitacionComponent
+  ],
   templateUrl: './habitaciones.component.html',
   styleUrl: './habitaciones.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,43 +29,18 @@ export class HabitacionesComponent implements OnInit {
   showModal = signal(false);
   isEditing = signal(false);
   searchTerm = signal('');
-  selectedPlanta = signal('all');
 
   formData = signal<Habitacion>({
-    numero: '',
+    nombre: '',
     planta: '',
+    capacidad: 'INDIVIDUAL',
     observaciones: ''
   });
 
   filteredHabitaciones = computed(() => {
-    let filtered = this.habitaciones();
-
     const search = this.searchTerm().toLowerCase();
-    if (search) {
-      filtered = filtered.filter(h =>
-        h.numero.toLowerCase().includes(search) ||
-        h.planta.toLowerCase().includes(search) ||
-        h.observaciones?.toLowerCase().includes(search)
-      );
-    }
-
-    const planta = this.selectedPlanta();
-    if (planta !== 'all') {
-      filtered = filtered.filter(h => h.planta === planta);
-    }
-
-    return filtered;
+    return this.habitaciones().filter(h => h.nombre.toLowerCase().includes(search));
   });
-
-  plantas = computed(() => {
-    const plantasSet = new Set(this.habitaciones().map(h => h.planta));
-    return Array.from(plantasSet).sort();
-  });
-
-  stats = computed(() => ({
-    total: this.habitaciones().length,
-    filtered: this.filteredHabitaciones().length
-  }));
 
   ngOnInit() {
     this.loadHabitaciones();
@@ -69,7 +52,7 @@ export class HabitacionesComponent implements OnInit {
 
   openCreateModal() {
     this.isEditing.set(false);
-    this.formData.set({ numero: '', planta: '', observaciones: '' });
+    this.formData.set({ nombre: '', planta: '', capacidad: 'INDIVIDUAL', observaciones: '' });
     this.showModal.set(true);
   }
 
@@ -81,14 +64,14 @@ export class HabitacionesComponent implements OnInit {
 
   closeModal() {
     this.showModal.set(false);
-    this.formData.set({ numero: '', planta: '', observaciones: '' });
+    this.formData.set({ nombre: '', planta: '', capacidad: 'INDIVIDUAL', observaciones: '' });
   }
 
   saveHabitacion() {
     const data = this.formData();
 
-    if (!data.numero || !data.planta) {
-      alert('Número y planta son obligatorios');
+    if (!data.nombre || !data.planta || !data.capacidad) {
+      alert('Nombre, planta y capacidad son obligatorios');
       return;
     }
 
@@ -114,6 +97,6 @@ export class HabitacionesComponent implements OnInit {
   }
 
   updateFormField(field: keyof Habitacion, value: string) {
-    this.formData.update(data => ({ ...data, [field]: value }));
+    this.formData.update(data => ({ ...data, [field]: field === 'capacidad' ? (value as Habitacion['capacidad']) : value }));
   }
 }

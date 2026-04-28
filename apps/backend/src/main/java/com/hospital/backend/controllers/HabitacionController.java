@@ -1,6 +1,6 @@
 package com.hospital.backend.controllers;
 
-import com.hospital.backend.dtos.HabitacionDTO;
+import com.hospital.backend.dtos.Habitacion.HabitacionDTO;
 import com.hospital.backend.services.HabitacionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,7 @@
 export interface Habitacion {
   id?: number;
-  numero: string;
+  nombre: string;
   planta: string;
+  capacidad: 'INDIVIDUAL' | 'DOBLE';
   observaciones?: string;
 }

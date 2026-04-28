@@ -1,6 +1,8 @@
-package com.hospital.backend.dtos;
+package com.hospital.backend.dtos.Habitacion;
 
+import com.hospital.backend.models.Habitacion.Capacidad;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,11 +24,11 @@ public class HabitacionDTO {
     private Long id;
 
     /**
-     * Número de la habitación.
+     * Nombre de la habitación.
      * Validación: no puede estar vacío ni ser solo espacios en blanco.
      */
-    @NotBlank(message = "El número de habitación es obligatorio")
-    private String numero;
+    @NotBlank(message = "El nombre de la habitación es obligatorio")
+    private String nombre;
 
     /**
      * Planta donde se encuentra la habitación.
@@ -34,6 +36,13 @@ public class HabitacionDTO {
      */
     @NotBlank(message = "La planta es obligatoria")
     private String planta;
+
+    /**
+     * Capacidad de la habitación (INDIVIDUAL o DOBLE).
+     * Validación: no puede ser null.
+     */
+    @NotNull(message = "La capacidad es obligatoria")
+    private Capacidad capacidad;
 
     /**
      * Observaciones adicionales sobre la habitación.

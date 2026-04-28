@@ -1,6 +1,6 @@
 package com.hospital.backend.controllers;
 
-import com.hospital.backend.dtos.PacienteDTO;
+import com.hospital.backend.dtos.Paciente.PacienteDTO;
 import com.hospital.backend.services.PacienteService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

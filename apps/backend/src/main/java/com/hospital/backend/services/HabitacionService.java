@@ -1,7 +1,7 @@
 package com.hospital.backend.services;
 
-import com.hospital.backend.dtos.HabitacionDTO;
-import com.hospital.backend.models.Habitacion;
+import com.hospital.backend.dtos.Habitacion.HabitacionDTO;
+import com.hospital.backend.models.Habitacion.Habitacion;
 import com.hospital.backend.repositorys.HabitacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,8 +74,9 @@ public class HabitacionService {
         Habitacion habitacion = habitacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Habitación no encontrada con id: " + id));
 
-        habitacion.setNumero(dto.getNumero());
+        habitacion.setNombre(dto.getNombre());
         habitacion.setPlanta(dto.getPlanta());
+        habitacion.setCapacidad(dto.getCapacidad());
         habitacion.setObservaciones(dto.getObservaciones());
 
         Habitacion updated = habitacionRepository.save(habitacion);
@@ -105,8 +106,9 @@ public class HabitacionService {
     private HabitacionDTO toDTO(Habitacion habitacion) {
         return new HabitacionDTO(
                 habitacion.getId(),
-                habitacion.getNumero(),
+                habitacion.getNombre(),
                 habitacion.getPlanta(),
+                habitacion.getCapacidad(),
                 habitacion.getObservaciones()
         );
     }
@@ -120,8 +122,9 @@ public class HabitacionService {
      */
     private Habitacion toEntity(HabitacionDTO dto) {
         Habitacion habitacion = new Habitacion();
-        habitacion.setNumero(dto.getNumero());
+        habitacion.setNombre(dto.getNombre());
         habitacion.setPlanta(dto.getPlanta());
+        habitacion.setCapacidad(dto.getCapacidad());
         habitacion.setObservaciones(dto.getObservaciones());
         return habitacion;
     }

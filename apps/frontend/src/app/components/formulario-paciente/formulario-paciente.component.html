@@ -1,0 +1,434 @@
+@if (show()) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+      <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-xl font-bold text-gray-900">
+          {{ isEditing() ? 'Editar paciente' : 'Nuevo paciente' }}
+        </h3>
+        <button (click)="onClose()" class="text-gray-400 hover:text-gray-600 transition-colors" type="button">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto max-h-[calc(90vh-150px)] space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre *</label>
+            <input
+              type="text"
+              [value]="draft().nombre"
+              (input)="updateTextField('nombre', $any($event.target).value)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Unidad *</label>
+            <select
+              [value]="draft().unidad"
+              (change)="updateTextField('unidad', $any($event.target).value)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              @for (unidad of unidadOptions; track unidad) {
+                <option [value]="unidad">{{ unidad }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Habitacion *</label>
+            <select
+              [value]="draft().habitacionId ?? ''"
+              (change)="updateNumberField('habitacionId', $any($event.target).value)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              <option value="">Selecciona una habitacion</option>
+              @for (habitacion of habitaciones(); track habitacion.id) {
+                <option [value]="habitacion.id">{{ habitacion.nombre }} (Planta {{ habitacion.planta }})</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Cama *</label>
+            <input
+              type="number"
+              min="1"
+              [value]="draft().cama"
+              (input)="updateNumberField('cama', $any($event.target).value)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha ingreso *</label>
+            <input
+              type="date"
+              [value]="draft().fechaIngreso"
+              (input)="updateTextField('fechaIngreso', $any($event.target).value)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha IQ</label>
+            <input
+              type="datetime-local"
+              [value]="draft().fechaIQ || ''"
+              (input)="updateTextField('fechaIQ', $any($event.target).value)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Alergias</label>
+            <input
+              type="text"
+              [value]="draft().alergias || ''"
+              (input)="updateTextField('alergias', $any($event.target).value)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Diagnostico *</label>
+          <textarea
+            rows="3"
+            [value]="draft().diagnostico"
+            (input)="updateTextField('diagnostico', $any($event.target).value)"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          ></textarea>
+        </div>
+
+        @if (isEditing()) {
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Alta</label>
+              <select
+                [value]="draft().alta ? 'true' : 'false'"
+                (change)="updateBooleanField('alta', $any($event.target).value === 'true')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="true">Si</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Ambulancia</label>
+              <select
+                [value]="draft().ambulancia ? 'true' : 'false'"
+                (change)="updateBooleanField('ambulancia', $any($event.target).value === 'true')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="true">Si</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Revisado</label>
+              <select
+                [value]="draft().revisado ? 'true' : 'false'"
+                (change)="updateBooleanField('revisado', $any($event.target).value === 'true')"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="true">Si</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+          </div>
+        }
+
+        <div class="border border-gray-200 rounded-xl p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-gray-900">Preanestesia</h4>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [checked]="!!draft().preanestesia" (change)="togglePreanestesia($any($event.target).checked)" />
+              Activar
+            </label>
+          </div>
+          @if (draft().preanestesia) {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="date"
+                [value]="draft().preanestesia!.fecha"
+                (input)="updatePreanestesia('fecha', $any($event.target).value)"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+              <input
+                type="text"
+                [value]="draft().preanestesia!.premedicacion || ''"
+                (input)="updatePreanestesia('premedicacion', $any($event.target).value)"
+                placeholder="Premedicacion"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+            </div>
+          }
+        </div>
+
+        <div class="border border-gray-200 rounded-xl p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-gray-900">Rx</h4>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [checked]="!!draft().rx" (change)="toggleRx($any($event.target).checked)" />
+              Activar
+            </label>
+          </div>
+          @if (draft().rx) {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="date"
+                [value]="draft().rx!.fecha"
+                (input)="updateRx('fecha', $any($event.target).value)"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+              <select
+                [value]="draft().rx!.tramo"
+                (change)="updateRx('tramo', $any($event.target).value)"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                @for (tramo of tramoOptions; track tramo) {
+                  <option [value]="tramo">{{ tramoLabel(tramo) }}</option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+
+        <div class="border border-gray-200 rounded-xl p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-gray-900">SV</h4>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [checked]="!!draft().sv" (change)="toggleSv($any($event.target).checked)" />
+              Activar
+            </label>
+          </div>
+          @if (draft().sv) {
+            <input
+              type="date"
+              [value]="draft().sv!.fecha"
+              (input)="updateSv('fecha', $any($event.target).value)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          }
+        </div>
+
+        <div class="border border-gray-200 rounded-xl p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-gray-900">Accesos venosos</h4>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [checked]="!!draft().accesosVenosos?.length" (change)="toggleAccesos($any($event.target).checked)" />
+              Activar
+            </label>
+          </div>
+          @if (draft().accesosVenosos?.length) {
+            <div class="space-y-3">
+              @for (item of draft().accesosVenosos ?? []; track $index) {
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <select
+                    [value]="item.tipo"
+                    (change)="updateAcceso($index, 'tipo', $any($event.target).value)"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    @for (tipo of accesoOptions; track tipo) {
+                      <option [value]="tipo">{{ tipo }}</option>
+                    }
+                  </select>
+                  <input
+                    type="date"
+                    [value]="item.fecha"
+                    (input)="updateAcceso($index, 'fecha', $any($event.target).value)"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <button type="button" (click)="removeAcceso($index)" class="px-4 py-2 border border-red-200 text-red-700 rounded-lg hover:bg-red-50">
+                    Quitar
+                  </button>
+                </div>
+              }
+              <button type="button" (click)="addAcceso()" class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200">
+                Añadir acceso venoso
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="border border-gray-200 rounded-xl p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-gray-900">Drenajes</h4>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [checked]="!!draft().drenajes?.length" (change)="toggleDrenajes($any($event.target).checked)" />
+              Activar
+            </label>
+          </div>
+          @if (draft().drenajes?.length) {
+            <div class="space-y-3">
+              @for (item of draft().drenajes ?? []; track $index) {
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <select
+                    [value]="item.tipo"
+                    (change)="updateDrenaje($index, $any($event.target).value)"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    @for (tipo of drenajeOptions; track tipo) {
+                      <option [value]="tipo">{{ tipo }}</option>
+                    }
+                  </select>
+                  <button type="button" (click)="removeDrenaje($index)" class="px-4 py-2 border border-red-200 text-red-700 rounded-lg hover:bg-red-50">
+                    Quitar
+                  </button>
+                </div>
+              }
+              <button type="button" (click)="addDrenaje()" class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200">
+                Añadir drenaje
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="border border-gray-200 rounded-xl p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-gray-900">Analiticas</h4>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [checked]="!!draft().analiticas?.length" (change)="toggleAnaliticas($any($event.target).checked)" />
+              Activar
+            </label>
+          </div>
+          @if (draft().analiticas?.length) {
+            <div class="space-y-3">
+              @for (item of draft().analiticas ?? []; track $index) {
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <input
+                    type="date"
+                    [value]="item.fecha"
+                    (input)="updateAnalitica($index, 'fecha', $any($event.target).value)"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <button type="button" (click)="removeAnalitica($index)" class="px-4 py-2 border border-red-200 text-red-700 rounded-lg hover:bg-red-50">
+                    Quitar
+                  </button>
+                </div>
+              }
+              <button type="button" (click)="addAnalitica()" class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200">
+                Añadir analitica
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="border border-gray-200 rounded-xl p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-gray-900">Curas</h4>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [checked]="!!draft().curas?.length" (change)="toggleCuras($any($event.target).checked)" />
+              Activar
+            </label>
+          </div>
+          @if (draft().curas?.length) {
+            <div class="space-y-3">
+              @for (item of draft().curas ?? []; track $index) {
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <input
+                    type="text"
+                    [value]="item.nombre"
+                    (input)="updateCura($index, 'nombre', $any($event.target).value)"
+                    placeholder="Nombre"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <input
+                    type="text"
+                    [value]="item.observaciones || ''"
+                    (input)="updateCura($index, 'observaciones', $any($event.target).value)"
+                    placeholder="Observaciones"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <input
+                    type="date"
+                    [value]="item.fecha"
+                    (input)="updateCura($index, 'fecha', $any($event.target).value)"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <button type="button" (click)="removeCura($index)" class="px-4 py-2 border border-red-200 text-red-700 rounded-lg hover:bg-red-50">
+                    Quitar
+                  </button>
+                </div>
+              }
+              <button type="button" (click)="addCura()" class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200">
+                Añadir cura
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="border border-gray-200 rounded-xl p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-semibold text-gray-900">Pruebas</h4>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" [checked]="!!draft().pruebas?.length" (change)="togglePruebas($any($event.target).checked)" />
+              Activar
+            </label>
+          </div>
+          @if (draft().pruebas?.length) {
+            <div class="space-y-3">
+              @for (item of draft().pruebas ?? []; track $index) {
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <input
+                    type="text"
+                    [value]="item.nombre"
+                    (input)="updatePrueba($index, 'nombre', $any($event.target).value)"
+                    placeholder="Nombre"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <input
+                    type="text"
+                    [value]="item.observaciones || ''"
+                    (input)="updatePrueba($index, 'observaciones', $any($event.target).value)"
+                    placeholder="Observaciones"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <input
+                    type="datetime-local"
+                    [value]="item.fecha"
+                    (input)="updatePrueba($index, 'fecha', $any($event.target).value)"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <button type="button" (click)="removePrueba($index)" class="px-4 py-2 border border-red-200 text-red-700 rounded-lg hover:bg-red-50">
+                    Quitar
+                  </button>
+                </div>
+              }
+              <button type="button" (click)="addPrueba()" class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200">
+                Añadir prueba
+              </button>
+            </div>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
+          <textarea
+            rows="3"
+            [value]="draft().observaciones || ''"
+            (input)="updateTextField('observaciones', $any($event.target).value)"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="p-6 border-t border-gray-200 flex gap-3">
+        <button
+          (click)="onClose()"
+          class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          type="button"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="onSave()"
+          class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          type="button"
+        >
+          {{ isEditing() ? 'Actualizar' : 'Crear' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,101 @@
+<div class="mt-4 pt-4 border-t border-gray-100">
+  <p class="text-xs uppercase tracking-wide text-gray-500 mb-2">Bloques Clinicos</p>
+  <div class="flex flex-wrap gap-2 text-xs">
+    <button type="button" (click)="toggleBlock('pre')" class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-800 hover:bg-emerald-200">Preanestesia: {{ paciente().preanestesia ? 'Si' : 'No' }}</button>
+    <button type="button" (click)="toggleBlock('rx')" class="px-2 py-1 rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200">Rx: {{ paciente().rx ? 'Si' : 'No' }}</button>
+    <button type="button" (click)="toggleBlock('sv')" class="px-2 py-1 rounded-full bg-sky-100 text-sky-800 hover:bg-sky-200">SV: {{ paciente().sv ? 'Si' : 'No' }}</button>
+    <button type="button" (click)="toggleBlock('av')" class="px-2 py-1 rounded-full bg-amber-100 text-amber-800 hover:bg-amber-200">Accesos: {{ listCount(paciente().accesosVenosos) }}</button>
+    <button type="button" (click)="toggleBlock('dren')" class="px-2 py-1 rounded-full bg-orange-100 text-orange-800 hover:bg-orange-200">Drenajes: {{ listCount(paciente().drenajes) }}</button>
+    <button type="button" (click)="toggleBlock('ana')" class="px-2 py-1 rounded-full bg-lime-100 text-lime-800 hover:bg-lime-200">Analiticas: {{ listCount(paciente().analiticas) }}</button>
+    <button type="button" (click)="toggleBlock('cur')" class="px-2 py-1 rounded-full bg-fuchsia-100 text-fuchsia-800 hover:bg-fuchsia-200">Curas: {{ listCount(paciente().curas) }}</button>
+    <button type="button" (click)="toggleBlock('pru')" class="px-2 py-1 rounded-full bg-violet-100 text-violet-800 hover:bg-violet-200">Pruebas: {{ listCount(paciente().pruebas) }}</button>
+  </div>
+
+  @if (isBlockSelected('pre')) {
+    <div class="mt-3 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-sm">
+      @if (paciente().preanestesia) {
+        <p><strong>Fecha:</strong> {{ paciente().preanestesia!.fecha }}</p>
+        <p><strong>Premedicacion:</strong> {{ safeText(paciente().preanestesia!.premedicacion) }}</p>
+      } @else {
+        <p>No hay datos de preanestesia.</p>
+      }
+    </div>
+  }
+  @if (isBlockSelected('rx')) {
+    <div class="mt-3 p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm">
+      @if (paciente().rx) {
+        <p><strong>Fecha:</strong> {{ paciente().rx!.fecha }}</p>
+        <p><strong>Tramo:</strong> {{ tramoLabel(paciente().rx!.tramo) }}</p>
+      } @else {
+        <p>No hay datos de Rx.</p>
+      }
+    </div>
+  }
+  @if (isBlockSelected('sv')) {
+    <div class="mt-3 p-3 rounded-lg bg-sky-50 border border-sky-200 text-sm">
+      @if (paciente().sv) {
+        <p><strong>Fecha:</strong> {{ paciente().sv!.fecha }}</p>
+      } @else {
+        <p>No hay datos de SV.</p>
+      }
+    </div>
+  }
+  @if (isBlockSelected('av')) {
+    <div class="mt-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-sm">
+      @if (listCount(paciente().accesosVenosos) > 0) {
+        @for (item of paciente().accesosVenosos; track $index) {
+          <p><strong>#{{ $index + 1 }}</strong> {{ item.tipo }} - {{ item.fecha }}</p>
+        }
+      } @else {
+        <p>No hay accesos venosos.</p>
+      }
+    </div>
+  }
+  @if (isBlockSelected('dren')) {
+    <div class="mt-3 p-3 rounded-lg bg-orange-50 border border-orange-200 text-sm">
+      @if (listCount(paciente().drenajes) > 0) {
+        @for (item of paciente().drenajes; track $index) {
+          <p><strong>#{{ $index + 1 }}</strong> {{ item.tipo }}</p>
+        }
+      } @else {
+        <p>No hay drenajes.</p>
+      }
+    </div>
+  }
+  @if (isBlockSelected('ana')) {
+    <div class="mt-3 p-3 rounded-lg bg-lime-50 border border-lime-200 text-sm">
+      @if (listCount(paciente().analiticas) > 0) {
+        @for (item of paciente().analiticas; track $index) {
+          <p><strong>#{{ $index + 1 }}</strong> {{ item.fecha }}</p>
+        }
+      } @else {
+        <p>No hay analiticas.</p>
+      }
+    </div>
+  }
+  @if (isBlockSelected('cur')) {
+    <div class="mt-3 p-3 rounded-lg bg-fuchsia-50 border border-fuchsia-200 text-sm">
+      @if (listCount(paciente().curas) > 0) {
+        @for (item of paciente().curas; track $index) {
+          <p><strong>#{{ $index + 1 }}</strong> {{ item.nombre }} - {{ item.fecha }}</p>
+          <p class="text-gray-600">{{ safeText(item.observaciones) }}</p>
+        }
+      } @else {
+        <p>No hay curas.</p>
+      }
+    </div>
+  }
+  @if (isBlockSelected('pru')) {
+    <div class="mt-3 p-3 rounded-lg bg-violet-50 border border-violet-200 text-sm">
+      @if (listCount(paciente().pruebas) > 0) {
+        @for (item of paciente().pruebas; track $index) {
+          <p><strong>#{{ $index + 1 }}</strong> {{ item.nombre }} - {{ item.fecha }}</p>
+          <p class="text-gray-600">{{ safeText(item.observaciones) }}</p>
+        }
+      } @else {
+        <p>No hay pruebas.</p>
+      }
+    </div>
+  }
+</div>
+
