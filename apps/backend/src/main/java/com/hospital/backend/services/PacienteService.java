@@ -230,11 +230,23 @@ public class PacienteService {
     }
 
     private PreanestesiaDTO toPreanestesiaDTO(Preanestesia p) {
-        return new PreanestesiaDTO(p.getId(), p.getTipaje(), p.getFecha(), p.getPremedicacion());
+        return new PreanestesiaDTO(
+                p.getId(),
+                p.getTipaje(),
+                p.getFecha(),
+                p.getPremedicacion(),
+                p.getObservaciones()
+        );
     }
 
     private Preanestesia toPreanestesiaEntity(PreanestesiaDTO dto) {
-        return new Preanestesia(dto.getId(), dto.getTipaje(), dto.getFecha(), dto.getPremedicacion());
+        return new Preanestesia(
+                dto.getId(),
+                dto.getTipaje(),
+                dto.getFecha(),
+                dto.getPremedicacion(),
+                dto.getObservaciones()
+        );
     }
 
     private RxDTO toRxDTO(Rx rx) {

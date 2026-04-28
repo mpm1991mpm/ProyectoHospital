@@ -20,4 +20,6 @@ public class PreanestesiaDTO {
     private LocalDate fecha;
 
     private String premedicacion;
+
+    private String observaciones;
 }

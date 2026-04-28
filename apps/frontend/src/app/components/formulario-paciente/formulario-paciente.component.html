@@ -147,7 +147,7 @@
             </label>
           </div>
           @if (draft().preanestesia) {
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <input
                 type="date"
                 [value]="draft().preanestesia!.fecha"
@@ -159,6 +159,13 @@
                 [value]="draft().preanestesia!.premedicacion || ''"
                 (input)="updatePreanestesia('premedicacion', $any($event.target).value)"
                 placeholder="Premedicacion"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+              <input
+                type="text"
+                [value]="draft().preanestesia!.observaciones || ''"
+                (input)="updatePreanestesia('observaciones', $any($event.target).value)"
+                placeholder="Observaciones"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>

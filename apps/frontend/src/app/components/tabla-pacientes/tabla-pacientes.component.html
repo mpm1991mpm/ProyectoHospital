@@ -31,6 +31,10 @@
               <span class="text-gray-900"> {{ safeText(paciente.diagnostico) }}</span>
             </div>
             <div>
+              <span class="text-gray-500">Unidad:</span>
+              <span class="text-gray-900"> {{ safeText(paciente.unidad) }}</span>
+            </div>
+            <div>
               <span class="text-gray-500">Revisado:</span>
               <span class="text-gray-900"> {{ boolLabel(paciente.revisado) }}</span>
             </div>
@@ -89,6 +93,7 @@
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Habitacion</th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cama</th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diagnostico</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alta</th>
             <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
           </tr>
@@ -106,6 +111,7 @@
               </td>
               <td class="px-4 py-4 text-sm text-gray-700">{{ paciente.cama }}</td>
               <td class="px-4 py-4 text-sm text-gray-700 break-words">{{ safeText(paciente.diagnostico) }}</td>
+              <td class="px-4 py-4 text-sm text-gray-700">{{ safeText(paciente.unidad) }}</td>
               <td class="px-4 py-4 text-sm text-gray-700">{{ boolLabel(paciente.alta) }}</td>
               <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium relative">
                 <button (click)="onEdit($event, paciente)" class="text-green-600 hover:text-green-900 mr-3 transition-colors" title="Editar">
@@ -148,7 +154,7 @@
             </tr>
             @if (isExpanded(paciente.id)) {
               <tr class="bg-gray-50">
-                <td colspan="6" class="px-4 py-5">
+                <td colspan="7" class="px-4 py-5">
                   <app-detalle-paciente [paciente]="paciente"></app-detalle-paciente>
                 </td>
               </tr>

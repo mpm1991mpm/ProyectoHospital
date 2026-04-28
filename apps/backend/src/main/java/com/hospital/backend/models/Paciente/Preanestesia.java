@@ -29,4 +29,7 @@ public class Preanestesia {
 
     @Column(length = 500)
     private String premedicacion;
+
+    @Column(length = 1000)
+    private String observaciones;
 }

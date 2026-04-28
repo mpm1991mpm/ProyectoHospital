@@ -15,6 +15,7 @@ export interface Preanestesia {
   tipaje: boolean;
   fecha: string;
   premedicacion?: string;
+  observaciones?: string;
 }
 
 export interface Rx {

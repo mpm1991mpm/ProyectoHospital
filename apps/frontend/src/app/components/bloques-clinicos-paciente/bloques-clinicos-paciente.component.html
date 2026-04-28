@@ -16,6 +16,7 @@
       @if (paciente().preanestesia) {
         <p><strong>Fecha:</strong> {{ paciente().preanestesia!.fecha }}</p>
         <p><strong>Premedicacion:</strong> {{ safeText(paciente().preanestesia!.premedicacion) }}</p>
+        <p><strong>Observaciones:</strong> {{ safeText(paciente().preanestesia!.observaciones) }}</p>
       } @else {
         <p>No hay datos de preanestesia.</p>
       }
@@ -98,4 +99,3 @@
     </div>
   }
 </div>
-

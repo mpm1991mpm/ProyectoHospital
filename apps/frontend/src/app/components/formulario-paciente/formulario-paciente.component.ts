@@ -118,7 +118,7 @@ export class FormularioPacienteComponent {
     this.draft.update((current) => ({
       ...current,
       preanestesia: enabled
-        ? current.preanestesia ?? { tipaje: true, fecha: today(), premedicacion: '' }
+        ? current.preanestesia ?? { tipaje: true, fecha: today(), premedicacion: '', observaciones: '' }
         : null,
     }));
   }
