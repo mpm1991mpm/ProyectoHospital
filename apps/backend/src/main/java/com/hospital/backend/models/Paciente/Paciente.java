@@ -86,6 +86,9 @@ public class Paciente {
     @Column(length = 500)
     private String alergias;
 
+    @Column(name = "color_marca", length = 20)
+    private String colorMarca;
+
     @NotNull
     @Column(nullable = false)
     private Boolean revisado = false;

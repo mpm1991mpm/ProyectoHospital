@@ -93,6 +93,7 @@ public class PacienteService {
         dto.setFechaIQ(paciente.getFechaIQ());
         dto.setFechaIngreso(paciente.getFechaIngreso());
         dto.setAlergias(paciente.getAlergias());
+        dto.setColorMarca(paciente.getColorMarca());
         dto.setRevisado(paciente.getRevisado());
         dto.setCama(paciente.getCama());
         dto.setHabitacionId(paciente.getHabitacion().getId());
@@ -156,6 +157,7 @@ public class PacienteService {
         paciente.setFechaIQ(dto.getFechaIQ());
         paciente.setFechaIngreso(dto.getFechaIngreso());
         paciente.setAlergias(dto.getAlergias());
+        paciente.setColorMarca(dto.getColorMarca());
         paciente.setRevisado(dto.getRevisado());
         paciente.setCama(dto.getCama());
         paciente.setHabitacion(habitacion);

@@ -2,6 +2,7 @@ export type Unidad = 'TRA' | 'UMI' | 'COL' | 'MS' | 'PIE' | 'ECTO';
 export type TipoAccesoVenoso = 'VP' | 'VC' | 'LM';
 export type TipoDrenaje = 'ASPIRATIVO' | 'INTERMITENTE';
 export type Tramo = 'MANANA' | 'TARDE';
+export type ColorMarca = 'ROJO' | 'NARANJA' | 'AZUL' | 'MORADO' | 'TURQUESA';
 
 export interface HabitacionBasic {
   id: number;
@@ -79,6 +80,7 @@ export interface Paciente {
   curas?: Cura[];
   pruebas?: Prueba[];
   alergias?: string;
+  colorMarca?: ColorMarca;
   revisado: boolean;
   cama: number;
   habitacionId?: number;

@@ -1,0 +1,60 @@
+﻿<aside class="hidden lg:flex lg:flex-col w-64 shrink-0 bg-white border-r border-gray-200 min-h-screen sticky top-0">
+  <a routerLink="/" class="px-6 py-6 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+    <h2 class="text-2xl font-extrabold text-gray-900">HOME</h2>
+  </a>
+
+  <nav class="px-4 py-4">
+    <p class="px-2 text-xs uppercase tracking-wide text-gray-500 mb-3">Secciones</p>
+    <ul class="space-y-2">
+      @for (item of sections; track item.route) {
+        <li>
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="ring-1 ring-inset ring-gray-300"
+            [class]="item.route === '/habitaciones'
+              ? 'block rounded-lg px-3 py-2 text-sm text-blue-900 bg-blue-50 hover:bg-blue-100 transition-colors'
+              : 'block rounded-lg px-3 py-2 text-sm text-green-900 bg-green-50 hover:bg-green-100 transition-colors'"
+          >
+            <span class="font-medium">{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+</aside>
+
+@if (mobileOpen()) {
+  <div class="lg:hidden fixed inset-0 z-50 flex">
+    <div class="absolute inset-0 bg-black/30" (click)="onCloseMobile()"></div>
+    <aside class="relative w-72 max-w-[85vw] bg-white border-r border-gray-200 min-h-screen shadow-xl">
+      <div class="px-4 py-4 border-b border-gray-100 flex items-center justify-between">
+        <a routerLink="/" (click)="onCloseMobile()" class="text-xl font-extrabold text-gray-900">HOME</a>
+        <button type="button" (click)="onCloseMobile()" class="text-gray-500 hover:text-gray-700" aria-label="Cerrar menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="px-4 py-4">
+        <p class="px-2 text-xs uppercase tracking-wide text-gray-500 mb-3">Secciones</p>
+        <ul class="space-y-2">
+          @for (item of sections; track item.route) {
+            <li>
+              <a
+                [routerLink]="item.route"
+                (click)="onCloseMobile()"
+                routerLinkActive="ring-1 ring-inset ring-gray-300"
+                [class]="item.route === '/habitaciones'
+                  ? 'block rounded-lg px-3 py-2 text-sm text-blue-900 bg-blue-50 hover:bg-blue-100 transition-colors'
+                  : 'block rounded-lg px-3 py-2 text-sm text-green-900 bg-green-50 hover:bg-green-100 transition-colors'"
+              >
+                <span class="font-medium">{{ item.label }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </nav>
+    </aside>
+  </div>
+}

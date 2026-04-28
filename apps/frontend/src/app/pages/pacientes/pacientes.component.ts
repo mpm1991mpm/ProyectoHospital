@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PacienteService } from '../../services/paciente.service';
 import { HabitacionService } from '../../services/habitacion.service';
-import { Paciente } from '../../models/paciente.model';
+import { ColorMarca, Paciente } from '../../models/paciente.model';
 import { BuscadorPacientesComponent } from '../../components/buscador-pacientes/buscador-pacientes.component';
 import { BoolFilter, UnidadFilter } from '../../components/buscador-pacientes/buscador-pacientes.component';
 import { TablaPacientesComponent } from '../../components/tabla-pacientes/tabla-pacientes.component';
 import { FormularioPacienteComponent } from '../../components/formulario-paciente/formulario-paciente.component';
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { SidebarNavComponent } from '../../components/sidebar-nav/sidebar-nav.component';
 type ViewMode = 'tabla' | 'habitaciones';
 
 function today(): string {
@@ -60,6 +62,8 @@ function clonePaciente(paciente: Paciente): Paciente {
     CommonModule,
     RouterModule,
     BuscadorPacientesComponent,
+    PageHeaderComponent,
+    SidebarNavComponent,
     TablaPacientesComponent,
     FormularioPacienteComponent,
   ],
@@ -83,6 +87,7 @@ export class PacientesComponent implements OnInit {
   unidadFilter = signal<UnidadFilter>('TODAS');
   viewMode = signal<ViewMode>('tabla');
   expandedRoomSections = signal<Record<string, boolean>>({});
+  mobileSidebarOpen = signal(false);
 
   formData = signal<Paciente>(getDefaultPaciente());
 
@@ -217,6 +222,20 @@ export class PacientesComponent implements OnInit {
     });
   }
 
+  markPacienteColor(payload: { id: number; colorMarca: ColorMarca | null }): void {
+    const current = this.pacientes().find((p) => p.id === payload.id);
+    if (!current) return;
+
+    const updatedPayload = this.normalizePayload({
+      ...clonePaciente(current),
+      colorMarca: payload.colorMarca ?? undefined,
+    });
+
+    this.pacienteService.update(payload.id, updatedPayload).subscribe({
+      error: (err) => alert('Error al actualizar color: ' + err.message),
+    });
+  }
+
   toggleRoomSection(title: string): void {
     this.expandedRoomSections.update((current) => ({
       ...current,
@@ -226,6 +245,14 @@ export class PacientesComponent implements OnInit {
 
   isRoomSectionExpanded(title: string): boolean {
     return this.expandedRoomSections()[title] ?? true;
+  }
+
+  toggleMobileSidebar(): void {
+    this.mobileSidebarOpen.update((v) => !v);
+  }
+
+  closeMobileSidebar(): void {
+    this.mobileSidebarOpen.set(false);
   }
 
   private sortPacientes(pacientes: Paciente[]): Paciente[] {

@@ -1,126 +1,117 @@
-<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
-  <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-10">
-    <div class="max-w-7xl mx-auto px-6 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <a routerLink="/" class="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-            </svg>
-          </a>
-          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0"/>
-          </svg>
-          <h1 class="text-2xl font-bold text-gray-900">Gestion de Pacientes</h1>
-        </div>
-        <button
-          (click)="openCreateModal()"
-          class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors shadow-sm"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Nuevo Paciente
-        </button>
-      </div>
-    </div>
-  </header>
+﻿<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 lg:flex">
+  <app-sidebar-nav [mobileOpen]="mobileSidebarOpen()" (closeMobile)="closeMobileSidebar()" />
 
-  <main class="max-w-7xl mx-auto px-6 py-8">
-    <app-buscador-pacientes
-      [searchTerm]="searchTerm()"
-      [altaFilter]="altaFilter()"
-      [revisadoFilter]="revisadoFilter()"
-      [unidadFilter]="unidadFilter()"
-      (searchTermChange)="searchTerm.set($event)"
-      (altaFilterChange)="altaFilter.set($event)"
-      (revisadoFilterChange)="revisadoFilter.set($event)"
-      (unidadFilterChange)="unidadFilter.set($event)"
+  <div class="flex-1 min-w-0">
+    <app-page-header
+      title="Gestion de Pacientes"
+      icon="pacientes"
+      iconColorClass="text-green-600"
+      [showBack]="false" [showMenuMobile]="true" (menuMobileClick)="toggleMobileSidebar()"
+      backLink="/"
+      primaryButtonLabel="Nuevo Paciente"
+      primaryButtonColorClass="bg-green-600 hover:bg-green-700"
+      (primaryClick)="openCreateModal()"
     />
 
-    <div class="mb-4 inline-flex rounded-lg border border-gray-200 bg-white p-1">
-      <button
-        type="button"
-        (click)="viewMode.set('tabla')"
-        class="px-3 py-2 text-sm rounded-md transition-colors"
-        [class.bg-green-600]="viewMode() === 'tabla'"
-        [class.text-white]="viewMode() === 'tabla'"
-        [class.text-gray-700]="viewMode() !== 'tabla'"
-      >
-        Tabla General
-      </button>
-      <button
-        type="button"
-        (click)="viewMode.set('habitaciones')"
-        class="px-3 py-2 text-sm rounded-md transition-colors"
-        [class.bg-green-600]="viewMode() === 'habitaciones'"
-        [class.text-white]="viewMode() === 'habitaciones'"
-        [class.text-gray-700]="viewMode() !== 'habitaciones'"
-      >
-        Por Habitacion
-      </button>
-    </div>
-
-    @if (viewMode() === 'tabla') {
-      <app-tabla-pacientes
-        [pacientes]="filteredPacientes()"
-        [loading]="loading()"
-        (editPaciente)="openEditModal($event)"
-        (deletePaciente)="deletePaciente($event)"
-        (markReviewed)="markPacienteRevisado($event)"
+    <main class="max-w-7xl mx-auto px-6 py-8">
+      <app-buscador-pacientes
+        [searchTerm]="searchTerm()"
+        [altaFilter]="altaFilter()"
+        [revisadoFilter]="revisadoFilter()"
+        [unidadFilter]="unidadFilter()"
+        (searchTermChange)="searchTerm.set($event)"
+        (altaFilterChange)="altaFilter.set($event)"
+        (revisadoFilterChange)="revisadoFilter.set($event)"
+        (unidadFilterChange)="unidadFilter.set($event)"
       />
-    } @else {
-      <div class="space-y-6">
-        @for (group of pacientesPorHabitacion(); track group.title) {
-          <section>
-            <div class="md:hidden">
-              <button
-                type="button"
-                (click)="toggleRoomSection(group.title)"
-                class="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white shadow-sm"
-              >
-                <span class="text-left">
-                  <span class="block text-sm font-semibold text-gray-900">{{ group.title }}</span>
-                  <span class="block text-xs text-gray-500">{{ group.pacientes.length }} pacientes</span>
-                </span>
-                <svg
-                  class="w-5 h-5 text-gray-500 transition-transform"
-                  [class.rotate-180]="isRoomSectionExpanded(group.title)"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-              </button>
-              @if (isRoomSectionExpanded(group.title)) {
-                <div class="mt-2">
-                  <app-tabla-pacientes
-                    [pacientes]="group.pacientes"
-                    [loading]="loading()"
-                    (editPaciente)="openEditModal($event)"
-                    (deletePaciente)="deletePaciente($event)"
-                    (markReviewed)="markPacienteRevisado($event)"
-                  />
-                </div>
-              }
-            </div>
 
-            <div class="hidden md:block">
-              <h2 class="text-lg font-semibold text-gray-800 mb-2">{{ group.title }}</h2>
-              <app-tabla-pacientes
-                [pacientes]="group.pacientes"
-                [loading]="loading()"
-                (editPaciente)="openEditModal($event)"
-                (deletePaciente)="deletePaciente($event)"
-                (markReviewed)="markPacienteRevisado($event)"
-              />
-            </div>
-          </section>
-        }
+      <div class="mb-4 inline-flex rounded-lg border border-gray-200 bg-white p-1">
+        <button
+          type="button"
+          (click)="viewMode.set('tabla')"
+          class="px-3 py-2 text-sm rounded-md transition-colors"
+          [class.bg-green-600]="viewMode() === 'tabla'"
+          [class.text-white]="viewMode() === 'tabla'"
+          [class.text-gray-700]="viewMode() !== 'tabla'"
+        >
+          Tabla General
+        </button>
+        <button
+          type="button"
+          (click)="viewMode.set('habitaciones')"
+          class="px-3 py-2 text-sm rounded-md transition-colors"
+          [class.bg-green-600]="viewMode() === 'habitaciones'"
+          [class.text-white]="viewMode() === 'habitaciones'"
+          [class.text-gray-700]="viewMode() !== 'habitaciones'"
+        >
+          Por Habitacion
+        </button>
       </div>
-    }
-  </main>
+
+      @if (viewMode() === 'tabla') {
+        <app-tabla-pacientes
+          [pacientes]="filteredPacientes()"
+          [loading]="loading()"
+          (editPaciente)="openEditModal($event)"
+          (deletePaciente)="deletePaciente($event)"
+          (markReviewed)="markPacienteRevisado($event)"
+          (markColor)="markPacienteColor($event)"
+        />
+      } @else {
+        <div class="space-y-6">
+          @for (group of pacientesPorHabitacion(); track group.title) {
+            <section>
+              <div class="md:hidden">
+                <button
+                  type="button"
+                  (click)="toggleRoomSection(group.title)"
+                  class="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white shadow-sm"
+                >
+                  <span class="text-left">
+                    <span class="block text-sm font-semibold text-gray-900">{{ group.title }}</span>
+                    <span class="block text-xs text-gray-500">{{ group.pacientes.length }} pacientes</span>
+                  </span>
+                  <svg
+                    class="w-5 h-5 text-gray-500 transition-transform"
+                    [class.rotate-180]="isRoomSectionExpanded(group.title)"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </button>
+                @if (isRoomSectionExpanded(group.title)) {
+                  <div class="mt-2">
+                    <app-tabla-pacientes
+                      [pacientes]="group.pacientes"
+                      [loading]="loading()"
+                      (editPaciente)="openEditModal($event)"
+                      (deletePaciente)="deletePaciente($event)"
+                      (markReviewed)="markPacienteRevisado($event)"
+                      (markColor)="markPacienteColor($event)"
+                    />
+                  </div>
+                }
+              </div>
+
+              <div class="hidden md:block">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">{{ group.title }}</h2>
+                <app-tabla-pacientes
+                  [pacientes]="group.pacientes"
+                  [loading]="loading()"
+                  (editPaciente)="openEditModal($event)"
+                  (deletePaciente)="deletePaciente($event)"
+                  (markReviewed)="markPacienteRevisado($event)"
+                  (markColor)="markPacienteColor($event)"
+                />
+              </div>
+            </section>
+          }
+        </div>
+      }
+    </main>
+  </div>
 
   <app-formulario-paciente
     [show]="showModal()"

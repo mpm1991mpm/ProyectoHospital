@@ -6,12 +6,16 @@ import { Habitacion } from '../../models/habitacion.model';
 import { BuscadorHabitacionesComponent } from '../../components/buscador-habitaciones/buscador-habitaciones.component';
 import { TablaHabitacionesComponent } from '../../components/tabla-habitaciones/tabla-habitaciones.component';
 import { FormularioHabitacionComponent } from '../../components/formulario-habitacion/formulario-habitacion.component';
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { SidebarNavComponent } from '../../components/sidebar-nav/sidebar-nav.component';
 
 @Component({
   selector: 'app-habitaciones',
   imports: [
     CommonModule,
     RouterModule,
+    PageHeaderComponent,
+    SidebarNavComponent,
     BuscadorHabitacionesComponent,
     TablaHabitacionesComponent,
     FormularioHabitacionComponent
@@ -29,6 +33,7 @@ export class HabitacionesComponent implements OnInit {
   showModal = signal(false);
   isEditing = signal(false);
   searchTerm = signal('');
+  mobileSidebarOpen = signal(false);
 
   formData = signal<Habitacion>({
     nombre: '',
@@ -98,5 +103,13 @@ export class HabitacionesComponent implements OnInit {
 
   updateFormField(field: keyof Habitacion, value: string) {
     this.formData.update(data => ({ ...data, [field]: field === 'capacidad' ? (value as Habitacion['capacidad']) : value }));
+  }
+
+  toggleMobileSidebar() {
+    this.mobileSidebarOpen.update(v => !v);
+  }
+
+  closeMobileSidebar() {
+    this.mobileSidebarOpen.set(false);
   }
 }

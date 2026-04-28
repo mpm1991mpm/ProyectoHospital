@@ -1,4 +1,4 @@
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+﻿<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-visible">
   @if (loading()) {
     <div class="flex items-center justify-center py-16">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
@@ -18,7 +18,7 @@
           <div class="flex items-start justify-between gap-3">
             <div>
               <h3 class="text-base font-semibold text-gray-900">{{ paciente.nombre }}</h3>
-              <p class="text-sm text-gray-600">{{ paciente.habitacion?.nombre || 'Sin asignar' }} � Cama {{ paciente.cama }}</p>
+              <p class="text-sm text-gray-600">{{ paciente.habitacion?.nombre || 'Sin asignar' }} · Cama {{ paciente.cama }}</p>
             </div>
             <span class="text-xs px-2 py-1 rounded-full" [class.bg-green-200]="isAlta(paciente)" [class.text-green-900]="isAlta(paciente)" [class.bg-gray-200]="!isAlta(paciente)" [class.text-gray-700]="!isAlta(paciente)">
               Alta: {{ boolLabel(paciente.alta) }}
@@ -36,36 +36,39 @@
             </div>
           </div>
 
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              (click)="toggleExpanded(paciente.id)"
-              class="px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 bg-white"
-              type="button"
-            >
+          <div class="mt-4 flex flex-wrap items-center gap-2">
+            <button (click)="toggleExpanded(paciente.id)" class="px-3 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 bg-white" type="button">
               {{ isExpanded(paciente.id) ? 'Ocultar detalles' : 'Ver detalles' }}
             </button>
-            <button
-              (click)="onEdit($event, paciente)"
-              class="px-3 py-2 text-sm rounded-lg bg-green-600 text-white"
-              type="button"
-            >
-              Editar
-            </button>
-            <button
-              (click)="onDelete($event, paciente.id)"
-              class="px-3 py-2 text-sm rounded-lg bg-red-600 text-white"
-              type="button"
-            >
-              Eliminar
-            </button>
-            @if (!isAlta(paciente) && !isRevisado(paciente)) {
-              <button
-                (click)="onMarkReviewed($event, paciente.id)"
-                class="px-3 py-2 text-sm rounded-lg bg-amber-500 text-white"
-                type="button"
-              >
-                Marcar revisado
+            <button (click)="onEdit($event, paciente)" class="px-3 py-2 text-sm rounded-lg bg-green-600 text-white" type="button">Editar</button>
+            <button (click)="onDelete($event, paciente.id)" class="px-3 py-2 text-sm rounded-lg bg-red-600 text-white" type="button">Eliminar</button>
+            <div class="relative">
+              <button (click)="toggleColorMenu($event, paciente.id)" class="px-3 py-2 text-sm rounded-lg bg-indigo-600 text-white" type="button" title="Color de marca">
+                Color
               </button>
+              @if (isColorMenuOpen(paciente.id)) {
+                <div class="absolute left-0 z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-[180px]">
+                  <p class="text-xs font-semibold text-gray-600 mb-2">Color de marca</p>
+                  <div class="grid grid-cols-3 gap-3">
+                    @for (option of colorOptions; track option.label) {
+                      <button
+                        type="button"
+                        (click)="setColor($event, paciente.id, option.value)"
+                        [title]="option.label"
+                        class="relative h-9 w-9 rounded border-2 transition-transform hover:scale-105"
+                        [class]="option.swatchClass + ((paciente.colorMarca ?? null) === option.value ? ' ring-2 ring-gray-700' : '')"
+                      >
+                        @if (option.strike) {
+                          <span class="absolute left-1 right-1 top-1/2 h-0.5 bg-gray-500 -rotate-45"></span>
+                        }
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+            @if (!isAlta(paciente) && !isRevisado(paciente)) {
+              <button (click)="onMarkReviewed($event, paciente.id)" class="px-3 py-2 text-sm rounded-lg bg-amber-500 text-white" type="button">Marcar revisado</button>
             }
           </div>
 
@@ -78,8 +81,8 @@
       }
     </div>
 
-    <div class="hidden md:block overflow-x-auto">
-      <table class="w-full min-w-[900px]">
+    <div class="hidden md:block">
+      <table class="w-full table-fixed">
         <thead class="bg-gray-50 border-b border-gray-200">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
@@ -93,8 +96,8 @@
         <tbody class="bg-white divide-y divide-gray-200">
           @for (paciente of pacientes(); track paciente.id) {
             <tr [class]="rowClass(paciente)" (click)="toggleExpanded(paciente.id)">
-              <td class="px-4 py-4 text-sm font-medium text-gray-900">{{ paciente.nombre }}</td>
-              <td class="px-4 py-4 text-sm text-gray-700">
+              <td class="px-4 py-4 text-sm font-medium text-gray-900 break-words">{{ paciente.nombre }}</td>
+              <td class="px-4 py-4 text-sm text-gray-700 break-words">
                 @if (paciente.habitacion) {
                   {{ paciente.habitacion.nombre }}
                 } @else {
@@ -102,24 +105,43 @@
                 }
               </td>
               <td class="px-4 py-4 text-sm text-gray-700">{{ paciente.cama }}</td>
-              <td class="px-4 py-4 text-sm text-gray-700">{{ safeText(paciente.diagnostico) }}</td>
+              <td class="px-4 py-4 text-sm text-gray-700 break-words">{{ safeText(paciente.diagnostico) }}</td>
               <td class="px-4 py-4 text-sm text-gray-700">{{ boolLabel(paciente.alta) }}</td>
-              <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium relative">
                 <button (click)="onEdit($event, paciente)" class="text-green-600 hover:text-green-900 mr-3 transition-colors" title="Editar">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </button>
                 <button (click)="onDelete($event, paciente.id)" class="text-red-600 hover:text-red-900 transition-colors" title="Eliminar">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+                <button (click)="toggleColorMenu($event, paciente.id)" class="text-indigo-600 hover:text-indigo-800 ml-3 transition-colors" [title]="'Color: ' + colorLabel(paciente.colorMarca || null)">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4c0-1.5.7-2.4 2-3.5l8.5-8.5a2.121 2.121 0 013 3L8 16.5c-1.1 1.3-2 2-3.5 2A4 4 0 017 21z"/>
                   </svg>
                 </button>
+                @if (isColorMenuOpen(paciente.id)) {
+                  <div class="absolute right-0 top-10 z-20 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+                    <p class="text-xs font-semibold text-gray-600 mb-2">Color de marca</p>
+                    <div class="grid grid-cols-3 gap-2">
+                      @for (option of colorOptions; track option.label) {
+                        <button
+                          type="button"
+                          (click)="setColor($event, paciente.id, option.value)"
+                          [title]="option.label"
+                          class="relative h-8 w-8 rounded border-2 transition-transform hover:scale-105"
+                          [class]="option.swatchClass + ((paciente.colorMarca ?? null) === option.value ? ' ring-2 ring-gray-700' : '')"
+                        >
+                          @if (option.strike) {
+                            <span class="absolute left-1 right-1 top-1/2 h-0.5 bg-gray-500 -rotate-45"></span>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
                 @if (!isAlta(paciente) && !isRevisado(paciente)) {
                   <button (click)="onMarkReviewed($event, paciente.id)" class="text-amber-600 hover:text-amber-800 ml-3 transition-colors" title="Marcar como revisado">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                   </button>
                 }
               </td>

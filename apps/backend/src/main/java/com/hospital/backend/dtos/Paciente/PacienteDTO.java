@@ -60,6 +60,8 @@ public class PacienteDTO {
 
     private String alergias;
 
+    private String colorMarca;
+
     @NotNull
     private Boolean revisado;
 
