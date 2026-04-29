@@ -58,6 +58,8 @@ public class PacienteDTO {
 
     private List<PruebaDTO> pruebas;
 
+    private List<TipajeDTO> tipajes;
+
     private String alergias;
 
     private String colorMarca;

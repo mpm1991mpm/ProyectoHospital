@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { Paciente } from '../../models/paciente.model';
 
-type ClinicalBlock = 'pre' | 'rx' | 'sv' | 'av' | 'dren' | 'ana' | 'cur' | 'pru';
+type ClinicalBlock = 'pre' | 'tip' | 'rx' | 'sv' | 'av' | 'dren' | 'ana' | 'cur' | 'pru';
 
 @Component({
   selector: 'app-bloques-clinicos-paciente',
@@ -35,4 +35,3 @@ export class BloquesClinicosPacienteComponent {
     return '-';
   }
 }
-

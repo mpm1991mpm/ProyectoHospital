@@ -5,7 +5,7 @@ import { PacienteService } from '../../services/paciente.service';
 import { HabitacionService } from '../../services/habitacion.service';
 import { ColorMarca, Paciente } from '../../models/paciente.model';
 import { BuscadorPacientesComponent } from '../../components/buscador-pacientes/buscador-pacientes.component';
-import { BoolFilter, UnidadFilter } from '../../components/buscador-pacientes/buscador-pacientes.component';
+import { BoolFilter, SortDirection, SortField, UnidadFilter } from '../../components/buscador-pacientes/buscador-pacientes.component';
 import { TablaPacientesComponent } from '../../components/tabla-pacientes/tabla-pacientes.component';
 import { FormularioPacienteComponent } from '../../components/formulario-paciente/formulario-paciente.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
@@ -85,6 +85,8 @@ export class PacientesComponent implements OnInit {
   altaFilter = signal<BoolFilter>('TODOS');
   revisadoFilter = signal<BoolFilter>('TODOS');
   unidadFilter = signal<UnidadFilter>('TODAS');
+  sortField = signal<SortField>('HABITACION_CAMA');
+  sortDirection = signal<SortDirection>('ASC');
   viewMode = signal<ViewMode>('tabla');
   expandedRoomSections = signal<Record<string, boolean>>({});
   mobileSidebarOpen = signal(false);
@@ -114,14 +116,14 @@ export class PacientesComponent implements OnInit {
       return true;
     });
 
-    return this.sortPacientes(filtered);
+    return this.sortPacientes(filtered, this.sortField(), this.sortDirection());
   });
 
   pacientesPorHabitacion = computed(() => {
     const groups = new Map<string, { title: string; pacientes: Paciente[] }>();
 
     for (const paciente of this.filteredPacientes()) {
-      const title = paciente.habitacion?.nombre || 'Sin habitacion';
+      const title = paciente.habitacion?.nombre || 'Sin habitación';
       if (!groups.has(title)) {
         groups.set(title, { title, pacientes: [] });
       }
@@ -181,7 +183,7 @@ export class PacientesComponent implements OnInit {
       return;
     }
     if (!payload.habitacionId) {
-      alert('La habitacion es obligatoria');
+      alert('La habitación es obligatoria');
       return;
     }
 
@@ -199,7 +201,7 @@ export class PacientesComponent implements OnInit {
   }
 
   deletePaciente(id: number): void {
-    if (confirm('Estas seguro de eliminar este paciente?')) {
+    if (confirm('¿Estás seguro de eliminar este paciente?')) {
       this.pacienteService.delete(id).subscribe({
         error: (err) => alert('Error al eliminar: ' + err.message),
       });
@@ -255,22 +257,60 @@ export class PacientesComponent implements OnInit {
     this.mobileSidebarOpen.set(false);
   }
 
-  private sortPacientes(pacientes: Paciente[]): Paciente[] {
+  private sortPacientes(pacientes: Paciente[], field: SortField, direction: SortDirection): Paciente[] {
+    const factor = direction === 'ASC' ? 1 : -1;
+
     return [...pacientes].sort((a, b) => {
-      const altaA = a.alta === true ? 1 : 0;
-      const altaB = b.alta === true ? 1 : 0;
-      if (altaA !== altaB) {
-        return altaB - altaA;
+      if (field === 'HABITACION_CAMA') {
+        const byHabitacion = this.compareHabitacion(a, b);
+        if (byHabitacion !== 0) return byHabitacion * factor;
+
+        const byCama = (a.cama ?? 0) - (b.cama ?? 0);
+        if (byCama !== 0) return byCama * factor;
+
+        return a.nombre.toLowerCase().localeCompare(b.nombre.toLowerCase(), 'es');
       }
 
-      const habA = (a.habitacion?.nombre || '').toLowerCase();
-      const habB = (b.habitacion?.nombre || '').toLowerCase();
-      if (habA !== habB) {
-        return habA.localeCompare(habB, 'es');
+      if (field === 'UNIDAD') {
+        const unidadCmp = (a.unidad || '').localeCompare(b.unidad || '', 'es');
+        if (unidadCmp !== 0) return unidadCmp * factor;
+        return a.nombre.toLowerCase().localeCompare(b.nombre.toLowerCase(), 'es');
       }
 
+      if (field === 'ALTA') {
+        const altaA = a.alta === true ? 1 : 0;
+        const altaB = b.alta === true ? 1 : 0;
+        if (altaA !== altaB) return (altaA - altaB) * factor;
+        return a.nombre.toLowerCase().localeCompare(b.nombre.toLowerCase(), 'es');
+      }
+
+      const timeA = a.fechaIngreso ? new Date(a.fechaIngreso).getTime() : 0;
+      const timeB = b.fechaIngreso ? new Date(b.fechaIngreso).getTime() : 0;
+      if (timeA !== timeB) return (timeA - timeB) * factor;
       return a.nombre.toLowerCase().localeCompare(b.nombre.toLowerCase(), 'es');
     });
+  }
+
+  private compareHabitacion(a: Paciente, b: Paciente): number {
+    const nameA = a.habitacion?.nombre ?? '';
+    const nameB = b.habitacion?.nombre ?? '';
+
+    const numA = this.extractFirstNumber(nameA);
+    const numB = this.extractFirstNumber(nameB);
+
+    if (numA !== null && numB !== null && numA !== numB) {
+      return numA - numB;
+    }
+
+    if (numA !== null && numB === null) return -1;
+    if (numA === null && numB !== null) return 1;
+
+    return nameA.localeCompare(nameB, 'es');
+  }
+
+  private extractFirstNumber(value: string): number | null {
+    const match = value.match(/\d+/);
+    return match ? Number(match[0]) : null;
   }
 
   private normalizePayload(paciente: Paciente): Paciente {

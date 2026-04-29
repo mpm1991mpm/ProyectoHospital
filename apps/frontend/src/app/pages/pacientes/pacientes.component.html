@@ -3,7 +3,7 @@
 
   <div class="flex-1 min-w-0">
     <app-page-header
-      title="Gestion de Pacientes"
+      title="Gestión de Pacientes"
       icon="pacientes"
       iconColorClass="text-green-600"
       [showBack]="false" [showMenuMobile]="true" (menuMobileClick)="toggleMobileSidebar()"
@@ -19,10 +19,14 @@
         [altaFilter]="altaFilter()"
         [revisadoFilter]="revisadoFilter()"
         [unidadFilter]="unidadFilter()"
+        [sortField]="sortField()"
+        [sortDirection]="sortDirection()"
         (searchTermChange)="searchTerm.set($event)"
         (altaFilterChange)="altaFilter.set($event)"
         (revisadoFilterChange)="revisadoFilter.set($event)"
         (unidadFilterChange)="unidadFilter.set($event)"
+        (sortFieldChange)="sortField.set($event)"
+        (sortDirectionChange)="sortDirection.set($event)"
       />
 
       <div class="mb-4 inline-flex rounded-lg border border-gray-200 bg-white p-1">
@@ -44,7 +48,7 @@
           [class.text-white]="viewMode() === 'habitaciones'"
           [class.text-gray-700]="viewMode() !== 'habitaciones'"
         >
-          Por Habitacion
+          Por Habitación
         </button>
       </div>
 
@@ -96,15 +100,35 @@
               </div>
 
               <div class="hidden md:block">
-                <h2 class="text-lg font-semibold text-gray-800 mb-2">{{ group.title }}</h2>
-                <app-tabla-pacientes
-                  [pacientes]="group.pacientes"
-                  [loading]="loading()"
-                  (editPaciente)="openEditModal($event)"
-                  (deletePaciente)="deletePaciente($event)"
-                  (markReviewed)="markPacienteRevisado($event)"
-                  (markColor)="markPacienteColor($event)"
-                />
+                <button
+                  type="button"
+                  (click)="toggleRoomSection(group.title)"
+                  class="w-full mb-2 flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white shadow-sm hover:bg-gray-50 transition-colors"
+                >
+                  <span class="text-left">
+                    <span class="block text-base font-semibold text-gray-900">{{ group.title }}</span>
+                    <span class="block text-sm text-gray-500">{{ group.pacientes.length }} pacientes</span>
+                  </span>
+                  <svg
+                    class="w-5 h-5 text-gray-500 transition-transform"
+                    [class.rotate-180]="isRoomSectionExpanded(group.title)"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </button>
+                @if (isRoomSectionExpanded(group.title)) {
+                  <app-tabla-pacientes
+                    [pacientes]="group.pacientes"
+                    [loading]="loading()"
+                    (editPaciente)="openEditModal($event)"
+                    (deletePaciente)="deletePaciente($event)"
+                    (markReviewed)="markPacienteRevisado($event)"
+                    (markColor)="markPacienteColor($event)"
+                  />
+                }
               </div>
             </section>
           }

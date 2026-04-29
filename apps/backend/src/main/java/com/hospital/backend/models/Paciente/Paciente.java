@@ -83,6 +83,9 @@ public class Paciente {
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Prueba> pruebas = new ArrayList<>();
 
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tipaje> tipajes = new ArrayList<>();
+
     @Column(length = 500)
     private String alergias;
 

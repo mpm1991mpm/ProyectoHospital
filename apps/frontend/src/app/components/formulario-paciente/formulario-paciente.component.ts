@@ -10,6 +10,7 @@ import {
   Prueba,
   Rx,
   SV,
+  Tipaje,
   TipoAccesoVenoso,
   TipoDrenaje,
   Tramo,
@@ -46,6 +47,7 @@ function getDefaultPaciente(): Paciente {
     analiticas: undefined,
     curas: undefined,
     pruebas: undefined,
+    tipajes: undefined,
     alergias: '',
     revisado: false,
     cama: 1,
@@ -65,6 +67,7 @@ function clonePaciente(paciente: Paciente): Paciente {
     analiticas: paciente.analiticas?.map((item) => ({ ...item })),
     curas: paciente.curas?.map((item) => ({ ...item })),
     pruebas: paciente.pruebas?.map((item) => ({ ...item })),
+    tipajes: paciente.tipajes?.map((item) => ({ ...item })),
   };
 }
 
@@ -295,6 +298,39 @@ export class FormularioPacienteComponent {
     }));
   }
 
+  toggleTipajes(enabled: boolean): void {
+    this.draft.update((current) => ({
+      ...current,
+      tipajes: enabled ? current.tipajes ?? [{ fecha: today(), observaciones: '' }] : undefined,
+    }));
+  }
+
+  addTipaje(): void {
+    this.draft.update((current) => ({
+      ...current,
+      tipajes: [...(current.tipajes ?? []), { fecha: today(), observaciones: '' }],
+    }));
+  }
+
+  removeTipaje(index: number): void {
+    this.draft.update((current) => ({
+      ...current,
+      tipajes: (() => {
+        const next = (current.tipajes ?? []).filter((_, i) => i !== index);
+        return next.length ? next : undefined;
+      })(),
+    }));
+  }
+
+  updateTipaje(index: number, field: keyof Tipaje, value: string): void {
+    this.draft.update((current) => ({
+      ...current,
+      tipajes: (current.tipajes ?? []).map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      ),
+    }));
+  }
+
   addPrueba(): void {
     this.draft.update((current) => ({
       ...current,
@@ -351,6 +387,7 @@ export class FormularioPacienteComponent {
     if (!payload.analiticas?.length) payload.analiticas = undefined;
     if (!payload.curas?.length) payload.curas = undefined;
     if (!payload.pruebas?.length) payload.pruebas = undefined;
+    if (!payload.tipajes?.length) payload.tipajes = undefined;
 
     this.save.emit(payload);
   }

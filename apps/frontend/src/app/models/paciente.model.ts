@@ -62,6 +62,12 @@ export interface Prueba {
   fecha: string;
 }
 
+export interface Tipaje {
+  id?: number;
+  fecha: string;
+  observaciones?: string;
+}
+
 export interface Paciente {
   id?: number;
   nombre: string;
@@ -80,6 +86,7 @@ export interface Paciente {
   analiticas?: Analitica[];
   curas?: Cura[];
   pruebas?: Prueba[];
+  tipajes?: Tipaje[];
   alergias?: string;
   colorMarca?: ColorMarca;
   revisado: boolean;

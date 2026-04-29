@@ -130,6 +130,10 @@ public class PacienteService {
                 .map(this::toPruebaDTO)
                 .collect(Collectors.toList()));
 
+        dto.setTipajes(paciente.getTipajes().stream()
+                .map(this::toTipajeDTO)
+                .collect(Collectors.toList()));
+
         Habitacion hab = paciente.getHabitacion();
         PacienteDTO.HabitacionBasicDTO habitacionDTO = new PacienteDTO.HabitacionBasicDTO(
                 hab.getId(),
@@ -227,6 +231,15 @@ public class PacienteService {
                 paciente.getPruebas().add(p);
             }
         }
+
+        paciente.getTipajes().clear();
+        if (dto.getTipajes() != null) {
+            for (TipajeDTO tDto : dto.getTipajes()) {
+                Tipaje t = toTipajeEntity(tDto);
+                t.setPaciente(paciente);
+                paciente.getTipajes().add(t);
+            }
+        }
     }
 
     private PreanestesiaDTO toPreanestesiaDTO(Preanestesia p) {
@@ -303,6 +316,14 @@ public class PacienteService {
 
     private Prueba toPruebaEntity(PruebaDTO dto) {
         return new Prueba(dto.getId(), dto.getNombre(), dto.getObservaciones(), dto.getFecha(), null);
+    }
+
+    private TipajeDTO toTipajeDTO(Tipaje t) {
+        return new TipajeDTO(t.getId(), t.getFecha(), t.getObservaciones());
+    }
+
+    private Tipaje toTipajeEntity(TipajeDTO dto) {
+        return new Tipaje(dto.getId(), dto.getFecha(), dto.getObservaciones(), null);
     }
 
     private void validarCama(Integer cama, Habitacion habitacion) {
