@@ -19,7 +19,8 @@
             "input": "apps/frontend/public"
           }
         ],
-        "styles": ["apps/frontend/src/styles.css"]
+        "styles": ["apps/frontend/src/styles.css"],
+        "serviceWorker": "apps/frontend/ngsw-config.json"
       },
       "configurations": {
         "production": {
